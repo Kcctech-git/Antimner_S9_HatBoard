@@ -47,7 +47,6 @@ sym-lib-table-bak
 *-autosave.kicad_sch
 
 # KiCad 6/7 specific user data
-*.kicad_pro
 *.kicad_sch-bak
 *.kicad_pcb-bak
 *.kicad_sch-bak
