@@ -1,4 +1,18 @@
 # Antminer S9 Control Board HAT
+## Disclaimer
+
+Following the global mining boom, large numbers of used Antminer S9 control boards have become widely available on secondary markets for as little as $5–30.
+These boards, originally built for cryptocurrency mining, are based on the well-documented Xilinx Zynq-7010 (XC7Z010) SoC and include:
+
+Gigabit Ethernet
+
+512 MB – 1 GB DDR3 RAM
+
+256 Mb SLC NAND flash
+
+Exposed PS–PL interface pins
+
+Because of their solid hardware design and abundance, these boards make excellent low-cost development platforms for embedded Linux, RTOS, FPGA, or hardware-software co-design experiments — especially when combined with this HAT expansion board.
 
 ## Overview
 
@@ -10,6 +24,10 @@ PS-side ULPI USB controller — enabling standard USB host/device connectivity v
 HDMI output interface — connected directly to the Zynq PL (Programmable Logic) fabric for video output or diagnostics.
 
 Breakout header exposing all remaining available PL I/O pins of the Zynq device (except 8 pins used for HDMI).
+
+![3d Top wiew of the board](https://github.com/Kcctech-git/Antimner_S9_HatBoard/blob/main/Images/Top_view.png)
+
+![3d Bottom wiew of the board](https://github.com/Kcctech-git/Antimner_S9_HatBoard/blob/main/Images/Bottom_view.png)
 
 The goal of this project is to repurpose the Antminer S9 control board into a versatile FPGA development platform, enabling experimentation with Zynq PS/PL subsystems, video output, and general FPGA prototyping.
 
@@ -53,34 +71,40 @@ Removing them frees access to: PS_MIO37 and PS_MIO38
 2. Wire PS_MIO37 and PS_MIO38 to J11
 Solder 60 mm insulated wires from the Q2/Q3 gate pads to PS_MIO37, PS_MIO38
 
-3. Wire PS_MIO39 to J11
+![Connection of PS_MIO37 and PS_MIO38 to J11](https://github.com/Kcctech-git/Antimner_S9_HatBoard/blob/main/Images/Connect_MIO37_38.jpg)
+
+4. Wire PS_MIO39 to J11
 Solder a 102 mm insulated wire from the resistor pad (previously tied to control logic) to PS_MIO39
 
-4. Remove capacitors for clearance
+![Connection of PS_MIO39 to J11](https://github.com/Kcctech-git/Antimner_S9_HatBoard/blob/main/Images/Connect_MIO39.jpg)
+
+6. Remove capacitors for clearance
 Desolder the following mechanically blocking capacitors to allow the HAT board to seat properly C195, C197, C229
 
-5. Connect auxiliary signals to J11 (Aux MIO Connector on HAT)
-6. Hook up the freed MIO lines and power signals to the J11 header on the HAT board.
+7. Connect auxiliary signals to J11 (Aux MIO Connector on HAT)
+8. Hook up the freed MIO lines and power signals to the J11 header on the HAT board.
 See pinout table below.
 
-7. Provide +12 V to J12 (12 V Pwr on HAT)
-8. Connect the +12 V rail from the control board to the J12 input on the HAT.
+9. Provide +12 V to J12 (12 V Pwr on HAT)
+10. Connect the +12 V rail from the control board to the J12 input on the HAT.
 The HAT generates 5 V and 1.8 V locally for its subsystems.
 
 ### J11 (Aux MIO Connector) Pinout
-|  Pin	|  Signal   |	Direction	Notes                                        |
+|  Pin	|  Signal   |	Direction	Notes                                         |
 | ----- | --------  | ------------------------------------------------------ |
-| 1     |	PS_MIO37  |	I/O	ULPI signal                                        |
-| 2	    | PS_MIO38  |	I/O	ULPI signal                                        |
+| 1	    | USB_VDD_IO| (2.5 V)	Power	I/O voltage reference for Zynq PS Bank 1 |
+| 2	    | RESET     |	Input	Optional; not used in the reference build        |
 | 3     |	PS_MIO39  |	I/O	ULPI signal                                        |
-| 4	    | RESET     |	Input	Optional; not used in the reference build        |
-| 5	    | USB_VDD_IO| (2.5 V)	Power	I/O voltage reference for Zynq PS Bank 1 |
+| 4	    | PS_MIO38  |	I/O	ULPI signal                                        |
+| 5     |	PS_MIO37  |	I/O	ULPI signal                                        |
 
 ⚠️ Note: Verify pin orientation according to the silkscreen and schematic before soldering.
 Keep wires short (≤ 100 mm) and add strain relief where possible.
 
 💡 Result:
 After completing these modifications, the HAT board’s USB3315C ULPI controller is correctly connected to the Zynq PS USB interface through PS_MIO37–39, with the proper 2.5 V I/O reference and power supplied via J12.
+
+![Assembled view of hat board](https://github.com/Kcctech-git/Antimner_S9_HatBoard/blob/main/Images/Assembled_view.jpg)
 
 ## Bill of Materials (BOM)
 
