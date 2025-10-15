@@ -1,4 +1,18 @@
 # Antminer S9 Control Board HAT
+## Disclaimer
+
+Following the global mining boom, large numbers of used Antminer S9 control boards have become widely available on secondary markets for as little as $5–30.
+These boards, originally built for cryptocurrency mining, are based on the well-documented Xilinx Zynq-7010 (XC7Z010) SoC and include:
+
+Gigabit Ethernet
+
+512 MB – 1 GB DDR3 RAM
+
+256 Mb SLC NAND flash
+
+Exposed PS–PL interface pins
+
+Because of their solid hardware design and abundance, these boards make excellent low-cost development platforms for embedded Linux, RTOS, FPGA, or hardware-software co-design experiments — especially when combined with this HAT expansion board.
 
 ## Overview
 
