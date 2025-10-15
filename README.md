@@ -2,15 +2,21 @@
 ## Disclaimer
 
 Following the global mining boom, large numbers of used Antminer S9 control boards have become widely available on secondary markets for as little as $5–30.
-These boards, originally built for cryptocurrency mining, are based on the well-documented Xilinx Zynq-7010 (XC7Z010) SoC and include:
+These boards, originally built to control cryptocurrency mining equipment, are based on the well-documented Xilinx Zynq-7010 (XC7Z010) SoC and include:
 
-Gigabit Ethernet
+ - Two Arm® Cortex®-A9 processor cores
 
-512 MB – 1 GB DDR3 RAM
+ - Gigabit Ethernet
 
-256 Mb SLC NAND flash
+ - 512 MB or 1 GB DDR3 RAM
 
-Exposed PS–PL interface pins
+ - 256 Mb SLC NAND flash
+
+ - MicroSD card
+
+ - Exposed PS–PL interface pins, some of which are connected to various peripherals
+ 
+ - Supports Linux and FreeRTOS
 
 Because of their solid hardware design and abundance, these boards make excellent low-cost development platforms for embedded Linux, RTOS, FPGA, or hardware-software co-design experiments — especially when combined with this HAT expansion board.
 
@@ -47,15 +53,30 @@ The goal of this project is to repurpose the Antminer S9 control board into a ve
 
 ### This HAT board enables multiple new use cases for the Antminer S9 Control Board:
 
-🧩 Use as a Zynq FPGA development board with access to PL I/O
+ - Use as a Zynq FPGA development board with easy access to PL I/O
 
-💻 Implement custom video output via HDMI for FPGA or Linux framebuffer
+ - Implement custom video output via HDMI for FPGA or Linux framebuffer
 
-🔌 Utilize USB host/device support through the PS-side ULPI PHY
+ - Utilize USB host/device support through the PS-side ULPI PHY
 
-⚙️ Experiment with bare-metal or Linux projects using the onboard DDR, flash, and Ethernet
+ - Experiment with bare-metal or Linux projects using the onboard DDR, flash, and Ethernet
 
-🔍 Perform reverse engineering, diagnostics, or educational FPGA projects on low-cost S9 boards
+ - Perform reverse engineering, diagnostics, or educational FPGA projects on low-cost S9 boards
+
+## Purpose of the Design
+
+The main goal of this HAT board was to enable the built-in USB 2.0 controller inside the Zynq-7010 Processing System (PS).
+Although the Zynq PS includes a native ULPI interface for USB, its signals on the Antminer S9 control board are routed to scattered locations and are not interconnected in a usable way.
+
+![ULPI signals on Antminer S9 board](https://github.com/Kcctech-git/Antimner_S9_HatBoard/blob/main/Images/ULPI-Conn.jpg)
+
+This board collects all required ULPI pins from different areas of the control board, aligns their routing lengths, and connects them to a USB PHY (USB3315C).
+Because the parallel ULPI bus operates at approximately 60 MHz, and the trace length on the HAT is around 16 cm — close to the reliable signaling limit — special care was taken to maintain consistent line length and impedance.
+
+To minimize signal reflections, 30 Ω series resistors were added on all ULPI data lines.
+Testing confirmed that the USB 2.0 interface operates reliably and stably: files larger than 100 MB can be read and written from a USB flash drive without errors.
+
+![ULPI signals routing](https://github.com/Kcctech-git/Antimner_S9_HatBoard/blob/main/Images/ULPI_Signals_routing.png)
 
 ## Hardware Modifications (Required)
 
@@ -90,7 +111,7 @@ See pinout table below.
 The HAT generates 5 V and 1.8 V locally for its subsystems.
 
 ### J11 (Aux MIO Connector) Pinout
-|  Pin	|  Signal   |	Direction	Notes                                         |
+|  Pin	 |  Signal   |	Direction	Notes                                        |
 | ----- | --------  | ------------------------------------------------------ |
 | 1	    | USB_VDD_IO| (2.5 V)	Power	I/O voltage reference for Zynq PS Bank 1 |
 | 2	    | RESET     |	Input	Optional; not used in the reference build        |
@@ -98,10 +119,10 @@ The HAT generates 5 V and 1.8 V locally for its subsystems.
 | 4	    | PS_MIO38  |	I/O	ULPI signal                                        |
 | 5     |	PS_MIO37  |	I/O	ULPI signal                                        |
 
-⚠️ Note: Verify pin orientation according to the silkscreen and schematic before soldering.
+### Note: Verify pin orientation according to the silkscreen and schematic before soldering.
 Keep wires short (≤ 100 mm) and add strain relief where possible.
 
-💡 Result:
+### Result:
 After completing these modifications, the HAT board’s USB3315C ULPI controller is correctly connected to the Zynq PS USB interface through PS_MIO37–39, with the proper 2.5 V I/O reference and power supplied via J12.
 
 ![Assembled view of hat board](https://github.com/Kcctech-git/Antimner_S9_HatBoard/blob/main/Images/Assembled_view.jpg)
@@ -112,15 +133,15 @@ After completing these modifications, the HAT board’s USB3315C ULPI controller
 | ---------------------- | --- | ---------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
 | **USB & Power**        |     |                  |                                      |                                                                                                                             |
 | IC1                    | 1   | USB3315C-CP-TR   | ULPI USB PHY                         | [Microchip Datasheet](http://ww1.microchip.com/downloads/en/DeviceDoc/3315.pdf)                                             |
-| IC2                    | 1   | LM3525M-H        | USB Power Switch                     | —                                                                                                                           |
+| IC2                    | 1   | LM3525M-H        | USB Power Switch                     | [TI Datasheet](https://www.ti.com/product/LM3525)                                                                           |
 | J14                    | 1   | USB-C Receptacle | USB2.0 16-pin                        | [USB Type-C Spec](https://www.usb.org/sites/default/files/documents/usb_type-c.zip)                                         |
 | J15                    | 1   | 48204-0001       | IO Connector (Molex type)            | [Molex 48204-0001](http://www.molex.com/webdocs/datasheets/pdf/en-us/0482040001_IO_CONNECTORS.pdf)                          |
 | Y1                     | 1   | 24 MHz           | ULPI Clock Oscillator                | [Abracon ASV](http://www.abracon.com/Oscillators/ASV.pdf)                                                                   |
 | **HDMI Interface**     |     |                  |                                      |                                                                                                                             |
-| J13                    | 1   | HDMI Type-A      | Output Connector                     | [Molex 208658-1001](https://en.wikipedia.org/wiki/HDMI)                                                                     |
+| J13                    | 1   | HDMI Type-A      | Output Connector                     | [Molex 208658-1001](https://www.molex.com/en-us/products/part-detail/2086581001)                                            |
 | D1, D6, D7             | 3   | CDDFN10-0524P    | HDMI ESD Protection                  | [Bourns CDDFN10-0524P](https://www.bourns.com/docs/Product-Datasheets/CDDFN10-0524P.pdf)                                    |
 | **Voltage Regulation** |     |                  |                                      |                                                                                                                             |
-| U1                     | 1   | L7805            | 5 V Linear Regulator                 | [ST L7805](http://www.st.com/content/ccc/resource/technical/document/datasheet/41/4f/b3/b0/12/d4/47/88/CD00000444.pdf)      |
+| U1                     | 1   | L7805            | 5 V Linear Regulator                 | [ST L7805](https://www.st.com/resource/en/datasheet/l78.pdf)      |
 | U2                     | 1   | LM1117DT-1.8     | 1.8 V Regulator                      | [TI LM1117](http://www.ti.com/lit/ds/symlink/lm1117.pdf)                                                                    |
 | **Connectors**         |     |                  |                                      |                                                                                                                             |
 | J1–J9                  | 9   | Conn_02x09       | PL / GPIO Headers (2 mm pitch)       | —                                                                                                                           |
@@ -178,3 +199,5 @@ KiCad design files and documentation are provided for educational and experiment
 This project is not affiliated with or endorsed by Bitmain Technologies.
 All hardware modifications and usage are performed at your own risk.
 Improper connections may damage the control board or FPGA.
+
+**Tags:** `FPGA` `Zynq-7010` `Antminer S9` `Embedded Linux` `ULPI` `HDMI` `Open Hardware`
